@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: openmediavault\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-09 20:39+0200\n"
+"POT-Creation-Date: 2026-09-07 19:44+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1548,6 +1548,9 @@ msgid "Imported groups."
 msgstr ""
 
 msgid "Imported users."
+msgstr ""
+
+msgid "Improve interoperability with macOS clients: correctly handle filenames using characters reserved in SMB, and apply Samba tuning recommended for macOS."
 msgstr ""
 
 msgid "India"
@@ -3392,7 +3395,7 @@ msgstr ""
 msgid "This controls whether this share is seen in the list of available shares in a net view and in the browse list."
 msgstr ""
 
-msgid "This field contains invalid characters, e.g. a blank or \"/[]:+|<>=;,*? character."
+msgid "This field contains invalid characters (e.g. \"\\/[]:+|<>=;,*?) or has leading/trailing spaces."
 msgstr ""
 
 msgid "This field contains invalid characters, only alphanumeric characters and underscore are allowed."
@@ -4026,6 +4029,9 @@ msgid "an hour"
 msgstr ""
 
 msgid "in %s"
+msgstr ""
+
+msgid "macOS compatibility"
 msgstr ""
 
 msgid "selected"

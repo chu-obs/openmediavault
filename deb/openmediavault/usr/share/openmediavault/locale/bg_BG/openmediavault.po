@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: openmediavault\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-09 20:39+0200\n"
+"POT-Creation-Date: 2026-09-07 19:44+0200\n"
 "PO-Revision-Date: 2012-03-17 01:48+0000\n"
 "Last-Translator: Plamen Vasilev <p.vasileff@gmail.com>, 2017\n"
 "Language-Team: Bulgarian (Bulgaria) (http://app.transifex.com/openmediavault/openmediavault/language/bg_BG/)\n"
@@ -1627,6 +1627,12 @@ msgid "Imported groups."
 msgstr ""
 
 msgid "Imported users."
+msgstr ""
+
+msgid ""
+"Improve interoperability with macOS clients: correctly handle filenames "
+"using characters reserved in SMB, and apply Samba tuning recommended for "
+"macOS."
 msgstr ""
 
 msgid "India"
@@ -3584,8 +3590,8 @@ msgid ""
 msgstr ""
 
 msgid ""
-"This field contains invalid characters, e.g. a blank or \"/[]:+|<>=;,*? "
-"character."
+"This field contains invalid characters (e.g. \"\\/[]:+|<>=;,*?) or has "
+"leading/trailing spaces."
 msgstr ""
 
 msgid ""
@@ -4278,6 +4284,9 @@ msgid "an hour"
 msgstr ""
 
 msgid "in %s"
+msgstr ""
+
+msgid "macOS compatibility"
 msgstr ""
 
 msgid "selected"

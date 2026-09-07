@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: openmediavault\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-09 20:39+0200\n"
+"POT-Creation-Date: 2026-09-07 19:44+0200\n"
 "PO-Revision-Date: 2012-03-17 01:48+0000\n"
 "Last-Translator: runesudden <runesudden@gmail.com>, 2013\n"
 "Language-Team: Norwegian (http://app.transifex.com/openmediavault/openmediavault/language/no/)\n"
@@ -1628,6 +1628,12 @@ msgid "Imported groups."
 msgstr ""
 
 msgid "Imported users."
+msgstr ""
+
+msgid ""
+"Improve interoperability with macOS clients: correctly handle filenames "
+"using characters reserved in SMB, and apply Samba tuning recommended for "
+"macOS."
 msgstr ""
 
 msgid "India"
@@ -3585,8 +3591,8 @@ msgid ""
 msgstr "Angir om det delte området er tilgjengelig i listen over delte områder på nettverket og i søkelisten."
 
 msgid ""
-"This field contains invalid characters, e.g. a blank or \"/[]:+|<>=;,*? "
-"character."
+"This field contains invalid characters (e.g. \"\\/[]:+|<>=;,*?) or has "
+"leading/trailing spaces."
 msgstr ""
 
 msgid ""
@@ -4279,6 +4285,9 @@ msgid "an hour"
 msgstr ""
 
 msgid "in %s"
+msgstr ""
+
+msgid "macOS compatibility"
 msgstr ""
 
 msgid "selected"
