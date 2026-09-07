@@ -1,5 +1,8 @@
 openmediavault (8.5.8-1) stable; urgency=medium
 
+  * Several improvements. Many thanks to Stanley Chan and Zorta Zenith for
+    the tips.
+  * Issue #2263: Add a per-share/homes macOS compatibility option to SMB.
   * Issue #2265: smartmontools no longer requires `-d cciss,N` for
     non-RAID hpsa devices.
 
