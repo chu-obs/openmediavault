@@ -1,5 +1,6 @@
 openmediavault (8.5.8-1) stable; urgency=medium
 
+  * Fix typo in media query for system theme detection.
   * Several improvements. Many thanks to Stanley Chan and Zorta Zenith for
     the tips.
   * Issue #2263: Add a per-share/homes macOS compatibility option to SMB.
