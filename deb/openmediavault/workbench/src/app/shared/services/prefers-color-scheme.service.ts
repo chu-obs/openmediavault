@@ -74,6 +74,6 @@ export class PrefersColorSchemeService {
   }
 
   private detectSystemTheme(): PrefersColorScheme {
-    return window.matchMedia?.('(prefers-color-schema: dark)').matches ? 'dark' : 'light';
+    return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
   }
 }
