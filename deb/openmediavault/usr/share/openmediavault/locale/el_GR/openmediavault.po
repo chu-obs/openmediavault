@@ -1633,7 +1633,7 @@ msgid ""
 "Improve interoperability with macOS clients: correctly handle filenames "
 "using characters reserved in SMB, and apply Samba tuning recommended for "
 "macOS."
-msgstr ""
+msgstr "Αυξημένη διαλειτουργικότητα με πελάτες macOS : σωστός χειρισμός ονομάτων αρχείων με χρήση κρατημένων χαρακτήρων SMB, και εφαρμογή προτεινόμενων ρυθμίσεων Samba για macOS."
 
 msgid "India"
 msgstr "India"
@@ -3592,7 +3592,7 @@ msgstr "Αυτό καθορίζει εάν αυτό το κοινόχρηστο 
 msgid ""
 "This field contains invalid characters (e.g. \"\\/[]:+|<>=;,*?) or has "
 "leading/trailing spaces."
-msgstr ""
+msgstr "Το πεδίο περιέχει απαράδεκτους χαρακτήρες (π.χ. \"\\/[]:+|<>=;,*?) ή έχει κενά στην αρχή ή στο τέλος."
 
 msgid ""
 "This field contains invalid characters, only alphanumeric characters and "
@@ -4287,7 +4287,7 @@ msgid "in %s"
 msgstr "σε %s"
 
 msgid "macOS compatibility"
-msgstr ""
+msgstr "Συμβατότητα macOS"
 
 msgid "selected"
 msgstr "επιλεγμένα"

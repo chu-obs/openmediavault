@@ -85,16 +85,16 @@ msgid "Logical Volumes"
 msgstr "逻辑卷"
 
 msgid "Max. capacity"
-msgstr ""
+msgstr "最大容量"
 
 msgid "Name"
 msgstr "名称"
 
 msgid "New capacity"
-msgstr ""
+msgstr "新容量"
 
 msgid "Percentage"
-msgstr ""
+msgstr "百分比"
 
 msgid "Physical Volumes"
 msgstr "多个物理卷"

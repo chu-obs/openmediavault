@@ -1635,7 +1635,7 @@ msgid ""
 "Improve interoperability with macOS clients: correctly handle filenames "
 "using characters reserved in SMB, and apply Samba tuning recommended for "
 "macOS."
-msgstr ""
+msgstr "增進與 macOS 用戶的可交互運作性：使用 SMB 中保留的字元來正確處理檔案名稱，並套用針對 macOS 建議的 Samba 調整。"
 
 msgid "India"
 msgstr "印度"
@@ -3594,7 +3594,7 @@ msgstr "這控制是否此共享會在網路顯示及瀏覽列表中，出現於
 msgid ""
 "This field contains invalid characters (e.g. \"\\/[]:+|<>=;,*?) or has "
 "leading/trailing spaces."
-msgstr ""
+msgstr "此輸入欄含有無效字元 (例如：\"\\/[]:+|<>=;,*?) 或有前導/尾隨空白字元。"
 
 msgid ""
 "This field contains invalid characters, only alphanumeric characters and "
@@ -4289,7 +4289,7 @@ msgid "in %s"
 msgstr "在 %s 內"
 
 msgid "macOS compatibility"
-msgstr ""
+msgstr "macOS 相容性"
 
 msgid "selected"
 msgstr "已選"

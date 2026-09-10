@@ -1641,7 +1641,7 @@ msgid ""
 "Improve interoperability with macOS clients: correctly handle filenames "
 "using characters reserved in SMB, and apply Samba tuning recommended for "
 "macOS."
-msgstr ""
+msgstr "Verbeter de interoperabiliteit met macOS-clients: behandel bestandsnamen correct die tekens bevatten die gereserveerd zijn in SMB, en pas de door macOS aanbevolen Samba-tuning toe."
 
 msgid "India"
 msgstr "India"
@@ -3600,7 +3600,7 @@ msgstr "Dit bepaalt of een gedeelde bron zichtbaar is via het 'net view' command
 msgid ""
 "This field contains invalid characters (e.g. \"\\/[]:+|<>=;,*?) or has "
 "leading/trailing spaces."
-msgstr ""
+msgstr "Dit veld bevat ongeldige tekens (bijv. \"/[]:+|<>=;,*?) of heeft spaties aan het begin of einde."
 
 msgid ""
 "This field contains invalid characters, only alphanumeric characters and "
@@ -4295,7 +4295,7 @@ msgid "in %s"
 msgstr "in %s"
 
 msgid "macOS compatibility"
-msgstr ""
+msgstr "macOS-compatibiliteit"
 
 msgid "selected"
 msgstr "geselecteerd"

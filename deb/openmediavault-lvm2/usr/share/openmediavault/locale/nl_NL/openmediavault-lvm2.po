@@ -85,16 +85,16 @@ msgid "Logical Volumes"
 msgstr "Logische volumes"
 
 msgid "Max. capacity"
-msgstr ""
+msgstr "Max. capaciteit"
 
 msgid "Name"
 msgstr "Naam"
 
 msgid "New capacity"
-msgstr ""
+msgstr "Nieuwe capaciteit"
 
 msgid "Percentage"
-msgstr ""
+msgstr "Percentage"
 
 msgid "Physical Volumes"
 msgstr "Fysieke volumes"
