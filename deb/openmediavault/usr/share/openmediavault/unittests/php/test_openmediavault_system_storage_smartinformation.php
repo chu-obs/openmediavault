@@ -55,6 +55,11 @@ class StorageDeviceStub
     {
         return "";
     }
+
+    public function getSize(): int
+    {
+        return 1000000000000;
+    }
 }
 
 class FakeSmartInformation extends \OMV\System\Storage\SmartInformation
@@ -422,5 +427,92 @@ class test_openmediavault_system_storage_smartinformation extends \PHPUnit\Frame
     {
         $si = new FakeSmartInformation($this->getSasOutput());
         $this->assertSame("28", $si->getTemperature());
+    }
+
+    public function testAtaSeverityPriorityFailingNowOverInThePast(): void
+    {
+        $output = [
+            "=== START OF READ SMART DATA SECTION ===",
+            "SMART overall-health self-assessment test result: PASSED",
+            "",
+            "ID# ATTRIBUTE_NAME          FLAGS    VALUE WORST THRESH FAIL RAW_VALUE",
+            "  1 Raw_Read_Error_Rate     POSR-K   100   040   051    In_the_past 0",
+            "  5 Reallocated_Sector_Ct   PO--CK   001   001   005    FAILING_NOW 100",
+        ];
+        $si = new FakeSmartInformation($output);
+        $this->assertSame(
+            \OMV\System\Storage\SmartInformation::SMART_ASSESSMENT_BAD_ATTRIBUTE_NOW,
+            $si->getOverallStatus()
+        );
+    }
+
+    public function testAtaZeroThresholdNotFlaggedAsFailing(): void
+    {
+        $output = [
+            "=== START OF READ SMART DATA SECTION ===",
+            "SMART overall-health self-assessment test result: PASSED",
+            "",
+            "ID# ATTRIBUTE_NAME          FLAGS    VALUE WORST THRESH FAIL RAW_VALUE",
+            "  9 Power_On_Hours          PO--CK   100   100   000    -    12345",
+        ];
+        $si = new FakeSmartInformation($output);
+        $this->assertSame(
+            \OMV\System\Storage\SmartInformation::SMART_ASSESSMENT_GOOD,
+            $si->getOverallStatus()
+        );
+        $attrs = $si->getAttributes();
+        $this->assertSame(
+            \OMV\System\Storage\SmartInformation::SMART_ASSESSMENT_GOOD,
+            $attrs[0]['assessment']
+        );
+    }
+
+    public function testNvmeCriticalWarningTriggersBadStatus(): void
+    {
+        $output = $this->getNvmeOutput();
+        foreach ($output as $k => $v) {
+            if (str_starts_with($v, "Critical Warning:")) {
+                $output[$k] = "Critical Warning:                   0x08";
+                break;
+            }
+        }
+        $si = new FakeSmartInformation($output);
+        $this->assertSame(
+            \OMV\System\Storage\SmartInformation::SMART_ASSESSMENT_BAD_STATUS,
+            $si->getOverallStatus()
+        );
+    }
+
+    public function testAtaFewBadSectors(): void
+    {
+        $output = [
+            "=== START OF READ SMART DATA SECTION ===",
+            "SMART overall-health self-assessment test result: PASSED",
+            "",
+            "ID# ATTRIBUTE_NAME          FLAGS    VALUE WORST THRESH FAIL RAW_VALUE",
+            "  5 Reallocated_Sector_Ct   PO--CK   100   100   005    -    5",
+        ];
+        $si = new FakeSmartInformation($output);
+        $this->assertSame(
+            \OMV\System\Storage\SmartInformation::SMART_ASSESSMENT_BAD_SECTOR,
+            $si->getOverallStatus()
+        );
+    }
+
+    public function testAtaExcessiveBadSectors(): void
+    {
+        // 1 TB = 1,000,000,000,000 bytes; threshold = intval(log(1e12/512, 2) * 1024) = 31603
+        $output = [
+            "=== START OF READ SMART DATA SECTION ===",
+            "SMART overall-health self-assessment test result: PASSED",
+            "",
+            "ID# ATTRIBUTE_NAME          FLAGS    VALUE WORST THRESH FAIL RAW_VALUE",
+            "  5 Reallocated_Sector_Ct   PO--CK   100   100   005    -    35000",
+        ];
+        $si = new FakeSmartInformation($output);
+        $this->assertSame(
+            \OMV\System\Storage\SmartInformation::SMART_ASSESSMENT_BAD_SECTOR_MANY,
+            $si->getOverallStatus()
+        );
     }
 }

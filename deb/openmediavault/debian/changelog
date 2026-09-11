@@ -1,5 +1,7 @@
 openmediavault (8.5.9-1) stable; urgency=medium
 
+  * Fix S.M.A.R.T. status assessment for ATA and NVMe devices, including
+    critical NVMe warning conditions.
   * Issue #2271: Fix monit config for rrdcached. Use systemctl restart
     instead of start.
 

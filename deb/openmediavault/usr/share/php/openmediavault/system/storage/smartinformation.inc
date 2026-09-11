@@ -176,8 +176,27 @@ class SmartInformation
         //        mode (see the `--nocheck` option). When `--nocheck` is
         //        configured, Bit 1 is the expected exit code for devices
         //        in standby/sleep mode and must not be treated as an error.
-        if (($exitStatus & 0x01) || (is_null($this->noCheck) && ($exitStatus & 0x02))) {
+        if ($exitStatus & 0x01) {
             throw new \OMV\ExecException($cmd, $output, $exitStatus);
+        }
+        if ($exitStatus & 0x02) {
+            // Bit 1 is shared by smartctl: it is set for devices in low-power
+            // mode when --nocheck is used, but ALSO when device open failed
+            // (e.g. device was disconnected or does not exist). Differentiate
+            // by checking the output for the explicit STANDBY/SLEEP message.
+            $isStandby = false;
+            if (!is_null($this->noCheck)) {
+                $regex = '/^Device is in (STANDBY|SLEEP) mode, exit\(\d+\)$/i';
+                foreach ($output as $outputv) {
+                    if (1 == preg_match($regex, $outputv)) {
+                        $isStandby = true;
+                        break;
+                    }
+                }
+            }
+            if (!$isStandby) {
+                throw new \OMV\ExecException($cmd, $output, $exitStatus);
+            }
         }
         $this->cmdOutput = $output;
 
@@ -280,23 +299,22 @@ class SmartInformation
 
     private function assessAttribute(&$attrData)
     {
+        $attrData['assessment'] = self::SMART_ASSESSMENT_GOOD;
         if (true === $attrData['prefailure']) {
-            // Set the default assessment.
-            $attrData['assessment'] = self::SMART_ASSESSMENT_GOOD;
-            // Always-Fail and Always-Passing thresholds are not relevant
-            // for our assessment.
-            if (!(1 <= $attrData['threshold']) && (0xFD >= $attrData['threshold'])) {
-                $attrData['assessment'] = self::SMART_ASSESSMENT_BAD_STATUS;
-                return;
-            }
-            // See https://wiki.ubuntuusers.de/Festplattenstatus
-            if ($attrData['value'] <= $attrData['threshold']) {
-                $attrData['assessment'] = self::SMART_ASSESSMENT_BAD_ATTRIBUTE_NOW;
-                return;
-            }
-            if ($attrData['worst'] <= $attrData['threshold']) {
-                $attrData['assessment'] = self::SMART_ASSESSMENT_BAD_ATTRIBUTE_IN_THE_PAST;
-                return;
+            // Check threshold validity. Per ATA specification, thresholds of
+            // 0x00 (always-passing) and 0xFE..0xFF (always-failing/vendor-specific)
+            // are not relevant for normalized threshold comparison, but bad sector
+            // raw counts (attributes 5 and 197) must still be evaluated below.
+            if (1 <= $attrData['threshold'] && 0xFD >= $attrData['threshold']) {
+                // See https://wiki.ubuntuusers.de/Festplattenstatus
+                if ($attrData['value'] <= $attrData['threshold']) {
+                    $attrData['assessment'] = self::SMART_ASSESSMENT_BAD_ATTRIBUTE_NOW;
+                    return;
+                }
+                if ($attrData['worst'] <= $attrData['threshold']) {
+                    $attrData['assessment'] = self::SMART_ASSESSMENT_BAD_ATTRIBUTE_IN_THE_PAST;
+                    return;
+                }
             }
             // Check for bad sectors (Reallocated_Sector_Ct and Current_Pending_Sector).
             if ($attrData['id'] == 5 || $attrData['id'] == 197) {
@@ -692,9 +710,15 @@ class SmartInformation
         if (false === ($attributes = $this->getAttributes())) {
             return false;
         }
-        // If the SMART attributes are not present, e.g. SAS devices,
+        // If the SMART attributes are not present, e.g. NVMe and SAS devices,
         // then try to get the information from the 'SMART DATA SECTION'.
         if (empty($attributes)) {
+            // NVMe devices report health via the self-assessment test result
+            // and the Critical Warning bitmask (e.g. spare below threshold,
+            // reliability degraded, or read-only mode). A non-zero critical
+            // warning indicates an unrecoverable hardware state even if the
+            // overall self-assessment string still reports PASSED.
+            //
             // === START OF READ SMART DATA SECTION ===
             // SMART Health Status: OK
             //
@@ -713,11 +737,20 @@ class SmartInformation
             // === START OF READ SMART DATA SECTION ===
             // SMART overall-health self-assessment test result: PASSED
             // ...
-            $regex = '/^SMART (Health Status:\s+OK|overall-health self-assessment test result:\s+PASSED)$/i';
+            $passed = false;
+            $regexHealth = '/^SMART (Health Status:\s+OK|overall-health self-assessment test result:\s+PASSED)$/i';
+            $regexCritWarn = '/^Critical Warning:\s+0x([0-9a-fA-F]+)/i';
+            $criticalWarning = 0;
             foreach ($this->cmdOutput as $cmdOutputk => $cmdOutputv) {
-                if (1 == preg_match($regex, $cmdOutputv)) {
-                    return self::SMART_ASSESSMENT_GOOD;
+                if (1 == preg_match($regexHealth, $cmdOutputv)) {
+                    $passed = true;
                 }
+                if (1 == preg_match($regexCritWarn, $cmdOutputv, $matches)) {
+                    $criticalWarning = hexdec($matches[1]);
+                }
+            }
+            if ($passed && 0 === $criticalWarning) {
+                return self::SMART_ASSESSMENT_GOOD;
             }
             return self::SMART_ASSESSMENT_BAD_STATUS;
         }
@@ -743,24 +776,40 @@ class SmartInformation
         if (is_64bits() && !is_null($this->sd)) {
             // Get the size of the device in bytes.
             $size = intval($this->sd->getSize());
-            $sectorThreshold = intval(log($size / 512) * 1024);
+            // Use base-2 logarithm (u64log2) as defined in libatasmart:
+            // sector_threshold = log2(capacity_sectors) * 1024
+            $sectorThreshold = intval(log($size / 512, 2) * 1024);
             if ($numSectors >= $sectorThreshold) {
                 return self::SMART_ASSESSMENT_BAD_SECTOR_MANY;
             }
         }
         // Check if any of the SMART attributes is bad.
+        // Follow the libatasmart severity cascade: an acute failing attribute
+        // takes precedence over bad sectors or past threshold excursions:
+        // BAD_ATTRIBUTE_NOW > BAD_SECTOR > BAD_ATTRIBUTE_IN_THE_PAST > GOOD
+        // Attributes must be scanned completely before returning, as they are
+        // ordered by ID rather than severity.
+        $hasBadAttributeNow = false;
+        $hasBadAttributeInThePast = false;
         foreach ($attributes as $attrk => $attrv) {
-            // Skip attributes that do not have a valid assessment.
-            if (self::SMART_ASSESSMENT_BAD_STATUS == $attrv['assessment']) {
+            if (self::SMART_ASSESSMENT_BAD_STATUS === $attrv['assessment']) {
                 continue;
             }
-            if (self::SMART_ASSESSMENT_GOOD !== $attrv['assessment']) {
-                return $attrv['assessment'];
+            if (self::SMART_ASSESSMENT_BAD_ATTRIBUTE_NOW === $attrv['assessment']) {
+                $hasBadAttributeNow = true;
+            } elseif (self::SMART_ASSESSMENT_BAD_ATTRIBUTE_IN_THE_PAST === $attrv['assessment']) {
+                $hasBadAttributeInThePast = true;
             }
+        }
+        if ($hasBadAttributeNow) {
+            return self::SMART_ASSESSMENT_BAD_ATTRIBUTE_NOW;
         }
         // Check if there are any bad sectors at all.
         if ($numSectors > 0) {
             return self::SMART_ASSESSMENT_BAD_SECTOR;
+        }
+        if ($hasBadAttributeInThePast) {
+            return self::SMART_ASSESSMENT_BAD_ATTRIBUTE_IN_THE_PAST;
         }
         // There's really nothing to complain about, so give it a pass.
         return self::SMART_ASSESSMENT_GOOD;
